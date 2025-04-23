@@ -1,1 +1,0 @@
-from pynncml.simulation.generate_rain_field import get_rain_filed_generation_function
