@@ -1,0 +1,13 @@
+numpy
+torch
+torchvision
+matplotlib
+scipy
+pandas
+xarray
+utm
+netcdf4
+tqdm
+prettytable
+huggingface_hub
+scikit-learn
