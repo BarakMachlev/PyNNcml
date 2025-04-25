@@ -83,7 +83,7 @@ def xarray2link(ds,
                 xy_min=None,
                 change2min_max=False,
                 samples_type="min_max",
-                window_size_in_sec: int = 900):
+                sampling_interval_in_sec: int = 900):
     """
     Convert xarray dataset to a LinkSet object.
 
@@ -129,11 +129,9 @@ def xarray2link(ds,
                     link = None  # Link is too far from the gauge
             if link is not None:
                 if samples_type == "min_max":
-                    link = link.create_min_max_link(window_size_in_sec)
+                    link = link.create_min_max_link(step_size = 900)
                 elif samples_type == "instantaneous":
-                    link = link.create_compressed_instantaneous_link(window_size_in_sec)
-                elif samples_type == "original":
-                    pass  # Leave the link as-is (no compression or resampling)
+                    link = link.create_compressed_instantaneous_link(sampling_interval_in_sec)
 
                 link_list.append(link)
 

@@ -132,7 +132,7 @@ def load_open_mrg(data_path="./data/",
                   time_slice=None,
                   rain_gauge_time_base=900,
                   link2gauge_distance=2000,
-                  window_size_in_min=15,
+                  sampling_interval_in_sec = 10,
                   samples_type="min_max"):
     download_open_mrg(local_path=data_path)
     file_location = data_path + "OpenMRG.zip"
@@ -157,7 +157,6 @@ def load_open_mrg(data_path="./data/",
         if str(time_slice.start) == "2015-06-01":
             gauge_data_array = np.insert(gauge_data_array, 0, gauge_data_array[0])  # duplicate first value
 
-        #rain_rate_gauge = rain2rain_rate(gauge_data_array, window_size=window_size_in_min)
         rain_rate_gauge = rain2rain_rate(gauge_data_array, window_size = 15)
         i = np.where(gauge_metadata.index == g_id)[0]
         lon = gauge_metadata.get("Longitude_DecDeg").values[i]
@@ -173,7 +172,7 @@ def load_open_mrg(data_path="./data/",
     # Prints for debug:
     n_days = (datetime.fromisoformat(str(time_slice.stop)) - datetime.fromisoformat(str(time_slice.start))).days + 1
     print(f"\n📅 Time slice: {time_slice.start} to {time_slice.stop} → {n_days} days")
-    expected_link_samples = int((24 * 60 * 60 * n_days) / (window_size_in_min * 60))
+    expected_link_samples = int((24 * 60 * 60 * n_days) / sampling_interval_in_sec)
     print(f"Inspecting first link...")
     # End debug.
     link_set = xarray2link(ds,
@@ -183,7 +182,7 @@ def load_open_mrg(data_path="./data/",
                            xy_min,
                            change2min_max=change2min_max,
                            samples_type=samples_type,
-                           window_size_in_sec=window_size_in_min * 60)
+                           sampling_interval_in_sec = sampling_interval_in_sec)
 
     # Prints for debug:
     if link_set.link_list:
@@ -201,9 +200,8 @@ def load_open_mrg(data_path="./data/",
 
         # Δt and duration check
         dt = np.diff(timestamps[:2])[0]
-        expected_dt = window_size_in_min * 60
         if samples_type != "original":
-            assert np.isclose(dt, expected_dt, atol=1), f"❌ Link Δt mismatch: expected {expected_dt}, got {dt}"
+            assert np.isclose(dt, sampling_interval_in_sec, atol=1), f"❌ Link Δt mismatch: expected {sampling_interval_in_sec}, got {dt}"
             print(f"✅ Time step Δt = {dt}s")
             assert n == expected_link_samples, f"❌ Sample count mismatch: expected {expected_link_samples}, got {n}"
             print(f"✅ Sample count = {expected_link_samples}")
@@ -234,7 +232,7 @@ def loader_open_mrg_dataset(data_path="./data/",
                             time_slice=None,
                             link2gauge_distance=2000,
                             samples_type="min_max",
-                            window_size_in_min=15):
+                            sampling_interval_in_sec = 10):
     """
     Load OpenMRG dataset
     :param data_path: Path to store the dataset
@@ -243,7 +241,7 @@ def loader_open_mrg_dataset(data_path="./data/",
     :param time_slice: Time slice to filter the dataset
     :param link2gauge_distance: Link to gauge distance in meter
     :param samples_type: "min_max"(default) or "instantaneous"
-    :param window_size_in_min: Window size in minute - used only when samples_type == "instantaneous"
+    :param sampling_interval_in_sec: used only when samples_type == "instantaneous"
     :return: LinkDataset
     """
     # Set parameters based on sampling type
@@ -260,6 +258,6 @@ def loader_open_mrg_dataset(data_path="./data/",
                                         time_slice = time_slice,
                                         rain_gauge_time_base = 900,
                                         link2gauge_distance = link2gauge_distance,
-                                        window_size_in_min = window_size_in_min,
+                                        sampling_interval_in_sec = sampling_interval_in_sec,
                                         samples_type = samples_type)
     return LinkDataset(link_set, point_set)

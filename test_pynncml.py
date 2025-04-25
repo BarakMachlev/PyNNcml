@@ -6,29 +6,35 @@ from matplotlib import pyplot as plt
 from tqdm import tqdm
 import scipy
 from sklearn import metrics
+from torch.utils.data import Subset
+import os
 
 xy_min = [1.29e6, 0.565e6]  # Link Region
 xy_max = [1.34e6, 0.5875e6]
 time_slice = slice("2015-06-01", "2015-06-10")  # Time Interval
 
-samples_type = "instantaneous"  # "instantaneous", "min_max", "original"
-window_size_in_min = 1
+samples_type = "instantaneous"  # Options: "instantaneous", "min_max"
+sampling_interval_in_sec = 60 # Options: 10, 20, 30, 50, 60, 90, 100, 150, 180, 300, 450, 900
 
 if samples_type == "min_max":
-    window_size_in_min=15
-    rnn_input_size = 4
+    rnn_input_size = 4  # MRSL, mRSL, MTSL, mTSL
+    sampling_interval_in_sec = 900
 elif samples_type == "instantaneous":
-    rnn_input_size = 2 * (15 // window_size_in_min)
-elif samples_type == "original":
-    rnn_input_size = 180
-else:
-    raise ValueError(f"Unknown samples_type: {samples_type}")
+    rnn_input_size = 2 * (900 // sampling_interval_in_sec)
 
-dataset = pnc.datasets.loader_open_mrg_dataset(xy_min=xy_min,
-                                               xy_max=xy_max,
-                                               time_slice=time_slice,
-                                               samples_type=samples_type,
-                                               window_size_in_min=window_size_in_min)
+# Set output directory based on sampling configuration
+output_dir = "/Users/barakmachlev/Documents/Thesis/Influence_of_sampling_intervals_Results/Max_Min"
+if samples_type == "instantaneous":
+    output_dir = f"/Users/barakmachlev/Documents/Thesis/Influence_of_sampling_intervals_Results/Instantaneous_{sampling_interval_in_sec}_sec"
+
+# Create the directory if it doesn't exist
+os.makedirs(output_dir, exist_ok=True)
+
+dataset = pnc.datasets.loader_open_mrg_dataset(xy_min = xy_min,
+                                               xy_max = xy_max,
+                                               time_slice = time_slice,
+                                               samples_type = samples_type,
+                                               sampling_interval_in_sec = sampling_interval_in_sec)
 
 plt.figure(1)
 dataset.link_set.plot_links(scale=True, scale_factor=1.0)
@@ -71,9 +77,47 @@ rnn_type = pnc.neural_networks.RNNType.GRU  # RNN Type
 n_epochs = 100  # @param{type:"integer"}
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+'''
 training_dataset, validation_dataset = torch.utils.data.random_split(dataset, [0.8, 0.2])
 data_loader = torch.utils.data.DataLoader(training_dataset, batch_size)
 val_loader = torch.utils.data.DataLoader(validation_dataset, batch_size)
+val_indices = validation_dataset.indices  # This is a list of indices in the original dataset
+print(val_indices[-1:])
+
+'''
+
+# Step 1: Split
+training_dataset, validation_dataset = torch.utils.data.random_split(dataset, [0.8, 0.2])
+
+# Step 2: Access indices
+train_indices = list(training_dataset.indices)
+val_indices = list(validation_dataset.indices)
+
+# Step 3: Desired link index to force into last val position
+target_idx = 0  # 👈 Set your desired link index here
+
+# Case 1: If already in validation — move to the end
+if target_idx in val_indices:
+    val_indices.remove(target_idx)
+    val_indices.append(target_idx)
+
+# Case 2: If in training — swap it with the last val index
+elif target_idx in train_indices:
+    last_val_idx = val_indices[-1]
+    train_indices.remove(target_idx)
+    val_indices[-1] = target_idx
+    train_indices.append(last_val_idx)
+
+# Step 4: Reconstruct datasets
+training_dataset = Subset(dataset, train_indices)
+validation_dataset = Subset(dataset, val_indices)
+
+# Step 5: Rebuild DataLoaders
+data_loader = torch.utils.data.DataLoader(training_dataset, batch_size)
+val_loader = torch.utils.data.DataLoader(validation_dataset, batch_size)
+
+print(f"✅ Link {target_idx} ensured as last in validation set.")
+
 
 model = pnc.scm.rain_estimation.two_step_network(n_layers=n_layers,  # Number of RNN layers
                                                  rnn_type=rnn_type,  # Type of RNN (GRU, LSTM)
@@ -163,7 +207,9 @@ plt.legend()
 plt.xlabel("Epoch")
 plt.ylabel("Loss")
 plt.title(f"Training Loss per Epoch ({samples_type} sampling)")
-plt.savefig(f"/Users/barakmachlev/Documents/Thesis/Results/{samples_type}/loss_plot_over_epochs_{samples_type}.png")
+figure_name = "loss_plot_over_epochs_{samples_type}"
+plt.savefig(os.path.join(output_dir, figure_name))
+#plt.savefig(f"/Users/barakmachlev/Documents/Thesis/Results/{samples_type}/loss_plot_over_epochs_{samples_type}.png")
 plt.show(block=False)
 plt.pause(5)
 plt.close()
@@ -171,6 +217,7 @@ plt.close()
 
 model.eval()
 ga = GroupAnalysis()
+
 with torch.no_grad():
     for rain_rate, rsl, tsl, metadata in val_loader:
         state = model.init_state(batch_size=rsl.shape[0])
@@ -210,7 +257,9 @@ cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix=confusion_matrix, d
 
 cm_display.plot()
 plt.title(f"Confusion Matrix ({samples_type} Sampling)")
-plt.savefig(f"/Users/barakmachlev/Documents/Thesis/Results/{samples_type}/confusion_matrix_{samples_type}.png")
+figure_name = f"confusion_matrix_{samples_type}.png"
+plt.savefig(os.path.join(output_dir, figure_name))
+#plt.savefig(f"/Users/barakmachlev/Documents/Thesis/Results/{samples_type}/confusion_matrix_{samples_type}.png")
 plt.show(block=False)
 plt.pause(5)
 plt.close()
@@ -246,11 +295,39 @@ plt.close()
 rain_hat_array = np.concatenate(rain_hat_list, axis=1)
 rain_ref_array = np.concatenate(rain_ref_list, axis=1)
 
-plt.plot(np.cumsum(np.maximum(rain_hat_array[0, :], 0)), label="Two-Steps RNN")
-plt.plot(np.cumsum(rain_ref_array[0, :]), "--", label="Reference")
+plt.plot(np.cumsum(np.maximum(rain_hat_array[9, :], 0)), label="Two-Steps RNN")
+plt.plot(np.cumsum(rain_ref_array[9, :]), "--", label="Reference")
 plt.grid()
 plt.legend()
 plt.ylabel("Accumulated Rain-Rate[mm]")
 plt.xlabel("# Samples")
-plt.savefig(f"/Users/barakmachlev/Documents/Thesis/Results/{samples_type}/Accumulated_Rain_Rate_{samples_type}.png")
+figure_name = f"Accumulated_Rain_Rate_{samples_type}.png"
+plt.savefig(os.path.join(output_dir, figure_name))
+plt.show()
+
+
+start_idx = 115
+end_idx = 205
+x = np.arange(start_idx, end_idx)
+
+ref = rain_ref_array[9, start_idx:end_idx]
+hat = rain_hat_array[9, start_idx:end_idx]
+
+# Compute Pearson correlation - Avoid zero variance issue
+if np.std(ref) == 0 or np.std(hat) == 0:
+    corr = float('nan')  # or corr = 0.0 if you prefer
+else:
+    corr = np.corrcoef(ref, hat)[0, 1]
+
+plt.figure()
+plt.plot(x, ref, label="Reference", linestyle="--")
+plt.plot(x, hat, label="Estimated")
+plt.xlabel("Sample Index")
+plt.ylabel(f"Rain Rate [mm/{sampling_interval_in_sec // 60} min]")
+plt.title(f"Predicted vs. Reference Rain Rate\nSamples {start_idx}–{end_idx}, Corr = {corr:.2f}")
+plt.grid()
+plt.legend()
+plt.tight_layout()
+figure_name = f"RainRate_{samples_type}.png"
+plt.savefig(os.path.join(output_dir, figure_name))
 plt.show()
