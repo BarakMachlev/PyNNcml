@@ -244,6 +244,7 @@ def loader_open_mrg_dataset(data_path="./data/",
     :param sampling_interval_in_sec: used only when samples_type == "instantaneous"
     :return: LinkDataset
     """
+    print("Git check")
     # Set parameters based on sampling type
     if samples_type == "min_max":
         change2min_max = True
