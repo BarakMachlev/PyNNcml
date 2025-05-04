@@ -160,8 +160,6 @@ class LinkSet:
         :param scale: Scale the link
         :param scale_factor: Scale factor
         """
-        print("Git check")
-
         index = 0
         gauge2index = {}
         for link in self.link_list:
