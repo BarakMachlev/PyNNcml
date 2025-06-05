@@ -5,6 +5,8 @@ from pynncml.neural_networks.backbone import Backbone
 from pynncml.neural_networks.rain_head import RainHead
 from pynncml.neural_networks.wd_head import WetDryHead
 from pynncml import neural_networks
+from pynncml.neural_networks.encoder_only_transformer.model import EncoderOnlyTransformer
+
 
 
 class TwoStepNetwork(nn.Module):
@@ -67,3 +69,34 @@ class TwoStepNetwork(nn.Module):
         :return: A Tensor, that hold the initial state.
         """
         return self.bb.init_state(batch_size=batch_size)
+
+
+class TwoStepNetworkWithAttention(nn.Module):
+
+    def __init__(self, normalization_cfg: neural_networks.InputNormalizationConfig,
+                 dynamic_input_size=4,
+                 metadata_input_size=2,
+                 d_model=512,
+                 metadata_n_features=32,
+                 window_size=32,
+                 dropout=0.1,
+                 num_encoder_layers=4,
+                 h=8
+                 ):
+        super(TwoStepNetworkWithAttention, self).__init__()
+        self.bb = EncoderOnlyTransformer(normalization_cfg,
+                                         dynamic_input_size=dynamic_input_size,
+                                         metadata_input_size=metadata_input_size,
+                                         d_model=d_model,
+                                         metadata_n_features=metadata_n_features,
+                                         window_size=window_size,
+                                         dropout=dropout,
+                                         num_encoder_layers=num_encoder_layers,
+                                         h=h)
+        self.rh = RainHead(d_model)
+        self.wdh = WetDryHead(d_model)
+
+    def forward(self, data: torch.Tensor, metadata: torch.Tensor) -> (torch.Tensor, torch.Tensor):  # model forward pass
+
+        features = self.bb(data, metadata)
+        return torch.cat([self.rh(features), self.wdh(features)], dim=-1)

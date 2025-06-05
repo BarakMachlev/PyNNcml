@@ -3,7 +3,7 @@ import torch
 from pynncml.neural_networks import InputNormalizationConfig
 
 
-def compute_data_normalization(in_data_loader, rnn_input_size: int, alpha: float = 0.9):
+def compute_data_normalization(in_data_loader, network_dynamic_input_size: int, alpha: float = 0.9):
     """
     Compute the normalization parameters for the input data.
     :param in_data_loader: Data loader
@@ -20,7 +20,7 @@ def compute_data_normalization(in_data_loader, rnn_input_size: int, alpha: float
 
     for _, rsl, tsl, metadata in in_data_loader:
         _data = torch.cat([rsl, tsl], dim=-1)
-        _data = _data.reshape([-1, rnn_input_size])
+        _data = _data.reshape([-1, network_dynamic_input_size])
         mean_dynamic = iir_update(_data.mean(dim=0), mean_dynamic)
         std_dynamic = iir_update(_data.std(dim=0), std_dynamic)
         mean_meta = iir_update(metadata.mean(dim=0), mean_meta)

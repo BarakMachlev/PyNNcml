@@ -7,6 +7,7 @@ from pynncml.single_cml_methods.rain_estimation.ts_constant import TwoStepsConst
 from pynncml.single_cml_methods.rain_estimation.os_dynamic import OneStepDynamic
 from pynncml.single_cml_methods.rain_estimation.os_network import OneStepNetwork
 from pynncml.single_cml_methods.rain_estimation.ts_network import TwoStepNetwork
+from pynncml.single_cml_methods.rain_estimation.ts_network import TwoStepNetworkWithAttention
 from pynncml.model_zoo.model_common import get_model_from_zoo, ModelType
 
 
@@ -73,6 +74,29 @@ def two_step_network(n_layers: int, rnn_type: RNNType,
     if pretrained and not enable_tn:
         model_file = get_model_from_zoo(ModelType.TWOSTEP, rnn_type, n_layers)
         model.load_state_dict(torch.load(model_file, map_location=torch.device('cpu')))
+    return model
+
+def two_step_network_with_attention(normalization_cfg: InputNormalizationConfig = INPUT_NORMALIZATION,
+                                    dynamic_input_size=4,
+                                    metadata_input_size=2,
+                                    d_model=512,
+                                    metadata_n_features=32,
+                                    window_size=32,
+                                    dropout=0.1,
+                                    num_encoder_layers=4,
+                                    h=8
+                                    ):
+
+    model = TwoStepNetworkWithAttention(normalization_cfg,
+                                        dynamic_input_size=dynamic_input_size,
+                                        metadata_input_size=metadata_input_size,
+                                        d_model=d_model,
+                                        metadata_n_features=metadata_n_features,
+                                        window_size=window_size,
+                                        dropout=dropout,
+                                        num_encoder_layers=num_encoder_layers,
+                                        h=h
+                                        )
     return model
 
 
