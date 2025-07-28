@@ -126,6 +126,7 @@ def rain2rain_rate(in_array: np.ndarray, window_size: int = 15, step_time: int =
 
 
 def load_open_mrg(data_path="./data/",
+                  restriction_minimum_length=0,
                   change2min_max=False,
                   xy_min=None,
                   xy_max=None,
@@ -180,6 +181,7 @@ def load_open_mrg(data_path="./data/",
                            ps,
                            xy_max,
                            xy_min,
+                           restriction_minimum_length=restriction_minimum_length,
                            change2min_max=change2min_max,
                            samples_type=samples_type,
                            sampling_interval_in_sec = sampling_interval_in_sec)
@@ -227,6 +229,7 @@ def load_open_mrg(data_path="./data/",
 
 
 def loader_open_mrg_dataset(data_path="./data/",
+                            restriction_minimum_length=0,
                             xy_min=None,
                             xy_max=None,
                             time_slice=None,
@@ -241,6 +244,7 @@ def loader_open_mrg_dataset(data_path="./data/",
     :param time_slice: Time slice to filter the dataset
     :param link2gauge_distance: Link to gauge distance in meter
     :param samples_type: "min_max"(default) or "instantaneous"
+    :param restriction_minimum_length: Minimum link length in kilometers (default is 0 = no restriction)
     :param sampling_interval_in_sec: used only when samples_type == "instantaneous"
     :return: LinkDataset
     """
@@ -252,6 +256,7 @@ def loader_open_mrg_dataset(data_path="./data/",
 
 
     link_set, point_set = load_open_mrg(data_path = data_path,
+                                        restriction_minimum_length=restriction_minimum_length,
                                         change2min_max = change2min_max,
                                         xy_min = xy_min,
                                         xy_max = xy_max,

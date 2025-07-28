@@ -42,7 +42,7 @@ class AverageMetric(ResultsAccumulator):
 
 
 class GroupAnalysis:
-    def __init__(self, precision=2):
+    def __init__(self, precision=4):
         """
         Initialize the group analysis
         """

@@ -81,6 +81,7 @@ def xarray2link(ds,
                 ps,
                 xy_max=None,
                 xy_min=None,
+                restriction_minimum_length=0,
                 change2min_max=False,
                 samples_type="min_max",
                 sampling_interval_in_sec: int = 900):
@@ -95,6 +96,7 @@ def xarray2link(ds,
     :param change2min_max: whether to apply min/max compression (used only if samples_type == "min_max")
     :param samples_type: "min_max" or "instantaneous"
     :param window_size_in_sec: window size in seconds (e.g., 900 = 15 min, 60 = 1 min)
+    :param restriction_minimum_length: Minimum link length in kilometers (default is 0 = no restriction)
     :return: LinkSet object with filtered and compressed links
     """
 
@@ -118,7 +120,7 @@ def xarray2link(ds,
             y_check = xy_min[1] < xy_array[1] and xy_min[1] < xy_array[3] and xy_max[1] > xy_array[3] and xy_max[1] > \
                       xy_array[1]
 
-        if x_check and y_check:
+        if x_check and y_check and float(ds_sublink.length) >= restriction_minimum_length:
             if ps == None:
                 link = xarray_sublink2link(ds_sublink)
             else:
