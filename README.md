@@ -37,7 +37,7 @@ pip install pynncml
 2. Rain Estimation (Constant Baseline [6], Dynamic Baseline [5], Direct RNN Estimation [4,3])
 3. Rain Field Generation (RainGAN )
 4. Rain Field Interpolation (IDW, GMZ [9])
-5. Wet Dry Classification and Rain Rate Estimation (Encoder only Transformer)
+5. Wet Dry Classification and Rain Rate Estimation (Encoder-only Transformer)
 
 
 ## Datasets
