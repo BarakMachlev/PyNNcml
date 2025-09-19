@@ -37,11 +37,11 @@ pip install pynncml
 2. Rain Estimation (Constant Baseline [6], Dynamic Baseline [5], Direct RNN Estimation [4,3])
 3. Rain Field Generation (RainGAN )
 4. Rain Field Interpolation (IDW, GMZ [9])
+5. Wet Dry Classification and Rain Rate Estimation (Encoder only Transformer)
 
 
 ## Datasets
-This repository includes an example of a dataset with a reference rain gauge. 
-In addition, this repository provide PyTorch version of the OpenMRG dataset [10].
+This repository uses the PyTorch version of the OpenMRG dataset [10] and the synthesized datasets generated as part of Barak Machlev’s M.Sc. study, described in detail in the study and used for evaluating the impact of sampling interval on rainfall estimation.
 
 ## Examples and Tutorials
 This repository includes examples of how to use the PyNNcml library to obtain various whether monotoning information using CMLs data. 
