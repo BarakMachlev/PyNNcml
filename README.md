@@ -55,7 +55,7 @@ and include:
 1. **test_encoder_only_transformer.py** — train and evaluate the Transformer model.
 2. **Synthetic_DataSet.py** — simulation to generate the synthesized datasets.
 3. **test_Synthetic_DataDet.py** — train the Transformer on the synthesized datasets.
-4. **results/** — trained models and metrics from 5-fold cross-validation.
+4. **Results/** — trained models and metrics from 5-fold cross-validation.
 
 
 
