@@ -54,9 +54,8 @@ The model contains three types of networks: Wet-dry classification network, one-
 
 # Contributing
 
-PyNNCMLs aims at keeping a more up-to-date fork and welcomes contributions from anyone.
-
-If you would like to contribute, please follow the [contribution guidelines](CONTRIBUTING.md).
+This fork aims to stay up to date and welcomes contributions.
+Open a pull request or issue, or email me at barakmachlev@gmail.com.
 
 
 # References
