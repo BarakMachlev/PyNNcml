@@ -45,14 +45,14 @@ This repository uses the PyTorch version of the OpenMRG dataset [10] and the syn
 
 # Impact of Sampling Interval on Rainfall Estimation from Communication Microwave Links Using Transformers
 
-This repository includes all code required to **train and reproduce** the experiments for  
+This repository includes all code required to reproduce the experiments for  
 **Impact of Sampling Interval on Rainfall Estimation from Communication Microwave Links Using Transformers**.
 
 The code and results are in  
 [`impact of sampling interval on rainfall estimation from communication microwave links using Transformers`](./impact%20of%20sampling%20interval%20on%20rainfall%20estimation%20from%20communication%20microwave%20links%20using%20Transformers)  
 and include:
 
-1. **train_encoder_only_transformer.py** — train (and optionally evaluate) the Transformer model.
+1. **train_encoder_only_transformer.py** — train and evaluate the Transformer model.
 2. **generate_synthesized_datasets.py** — simulation to generate the synthesized datasets.
 3. **train_on_synthetic_datasets.py** — train the Transformer on the synthesized datasets.
 4. **results/** — trained models and metrics from 5-fold cross-validation.
