@@ -48,7 +48,7 @@ This repository includes examples of how to use the PyNNcml library to obtain va
 Please see the [examples](examples) directory for more information.
 
 
-## Model Zoo
+## Model Zoo *(not relevant to this study)*
 In this project we supply a set of trained networks in our [Model Zoo](https://github.com/haihabi/PyNNcml/tree/master/pynncml/model_zoo), this networks are trained on our own dataset which is not publicly available.
 The model contains three types of networks: Wet-dry classification network, one-step network (rain estimation only) and two-step network (rain estimation and wet-dry classification). Moreover, we have provided all of these networks with a various number of RNN cells (1, 2, 3). From more details about network structure and results see the publication list.
 
