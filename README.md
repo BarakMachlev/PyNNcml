@@ -53,7 +53,7 @@ and includes:
 
 1. **test_encoder_only_transformer.py** — train and evaluate the Transformer model.
 2. **Synthetic_DataSet.py** — simulation to generate the synthesized datasets.
-3. **test_Synthetic_DataDet.py** — train the Transformer on the synthesized datasets.
+3. **test_Synthetic_DataDet.py** — train and evaluate the Transformer model on the synthesized datasets.
 
 ## Model Zoo *(not relevant to this study)*
 In this project we supply a set of trained networks in our [Model Zoo](https://github.com/haihabi/PyNNcml/tree/master/pynncml/model_zoo), this networks are trained on our own dataset which is not publicly available.
