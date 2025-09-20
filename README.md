@@ -51,7 +51,7 @@ The code and is in
 [`impact of sampling interval on rainfall estimation from communication microwave links using Transformers`](./impact%20of%20sampling%20interval%20on%20rainfall%20estimation%20from%20communication%20microwave%20links%20using%20Transformers)  
 and includes:
 
-1. **test_encoder_only_transformer.py** — train and evaluate the Transformer model.
+1. **test_encoder_only_transformer.py** — train and evaluate the Transformer model on the OpenMRG dataset.
 2. **Synthetic_DataSet.py** — simulation to generate the synthesized datasets.
 3. **test_Synthetic_DataDet.py** — train and evaluate the Transformer model on the synthesized datasets.
 
