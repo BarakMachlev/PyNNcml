@@ -1,5 +1,5 @@
 
-# PyNNcml
+# MinMaxVsInstantaneousCML
 A python toolbox based on PyTorch which utilized neural network for rain estimation and classification from commercial microwave link (CMLs) data. This toolbox provides an implementation of algorithms for extracting rain-rate using neural networks and CMLs.
 
 This project is an extended version of the [PyNNcml](https://github.com/haihabi/PyNNcml) rainfall estimation toolbox, developed as part of the M.Sc. thesis of Hai Victor Habi under the supervision of Prof. Hagit Messer at Tel Aviv University and maintained by the [Cellular Environmental Monitoring and Processing Lab](https://cellenmonlab.tau.ac.il/).  
